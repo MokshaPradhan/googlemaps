@@ -1,11 +1,15 @@
-// pages/index.js
-
-import MapComponent from '../components/MapComponent';
+import React from 'react';
+import GoogleMapsComponent from '../components/MapComponent';
 
 const HomePage = () => {
+  const defaultPlace = {
+    name: 'Rinconada Library',
+    address: '1213 Newell Rd, Palo Alto, CA 94303',
+  };
+
   return (
     <div>
-      <MapComponent />
+      <GoogleMapsComponent defaultPlace={defaultPlace} />
     </div>
   );
 };

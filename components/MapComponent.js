@@ -1,84 +1,90 @@
-import React, { useState, useRef } from 'react';
-import { GoogleMap, LoadScript, StandaloneSearchBox } from '@react-google-maps/api';
+import React, { useState, useEffect, useRef } from 'react';
+import Script from 'next/script';
 
-const MapComponent = () => {
+const GoogleMapsComponent = ({ defaultPlace }) => {
   const [map, setMap] = useState(null);
-  const searchBoxRef = useRef(null);
+  const [location, setLocation] = useState(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const mapElementRef = useRef(null);
 
-  const mapContainerStyle = {
-    width: '100%',
-    height: '100vh',
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !isMapLoaded && window.google) {
+      initMap();
+      setIsMapLoaded(true); // Set map as loaded
+    }
+  }, [isMapLoaded]);
+
+  const initMap = async () => {
+    const geocoder = new window.google.maps.Geocoder();
+    const geocoderResponse = await geocoder.geocode({ address: defaultPlace.address });
+    const geocoderResult = geocoderResponse.results[0];
+
+    const mapInstance = new window.google.maps.Map(mapElementRef.current, {
+      center: geocoderResult.geometry.location,
+      zoom: 19,
+      tilt: 0,
+      mapTypeId: 'satellite',
+      mapTypeControl: false,
+      fullscreenControl: false,
+      rotateControl: false,
+      streetViewControl: false,
+      zoomControl: false,
+    });
+
+    setMap(mapInstance);
+    setLocation(geocoderResult.geometry.location);
   };
 
-  const center = {
-    lat: -34.397,
-    lng: 150.644,
-  };
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery || !window.google || !map) return;
 
-  const options = {
-    mapTypeId: 'terrain', // Topographic view
-  };
-
-  const onLoad = (ref) => {
-    setMap(ref);
-  };
-
-  const onSearchBoxLoad = (ref) => {
-    searchBoxRef.current = ref;
-  };
-
-  const onPlacesChanged = () => {
-    const places = searchBoxRef.current.getPlaces();
-    if (places && places.length > 0) {
-      const newCenter = {
-        lat: places[0].geometry.location.lat(),
-        lng: places[0].geometry.location.lng(),
-      };
-      map.panTo(newCenter);
-      map.setZoom(15);
+    const geocoder = new window.google.maps.Geocoder();
+    const response = await geocoder.geocode({ address: searchQuery });
+    if (response.results.length > 0) {
+      const newLocation = response.results[0].geometry.location;
+      map.setCenter(newLocation);
+      setLocation(newLocation);
     }
   };
 
-  // Styling for the search box container
-  const searchBoxContainerStyle = {
-    position: 'absolute', // Absolute positioning to float over the map
-    top: '10px', // Distance from the top of the map container
-    left: '50%', // Centered horizontally
-    transform: 'translateX(-50%)', // Adjust horizontal position to truly center
-    zIndex: 10, // Ensure it's above the map layers
-  };
-
   return (
-    <LoadScript
-      googleMapsApiKey="AIzaSyCQEjBzl2MSx3l7rvE6aTOGkJGaQBUzQvI"
-      libraries={['places']}
-    >
-      <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
-        <div style={searchBoxContainerStyle}>
-          <StandaloneSearchBox
-            onLoad={onSearchBoxLoad}
-            onPlacesChanged={onPlacesChanged}
-          >
+    <>
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+        strategy="beforeInteractive"
+        onLoad={() => {
+          if (!isMapLoaded) {
+            initMap();
+          }
+        }}
+      />
+      <div className="flex">
+        <div ref={mapElementRef} className="w-full h-screen" />
+        <aside className="w-80 h-screen overflow-auto p-4 bg-gray-100">
+          <form onSubmit={handleSearch} className="mb-4">
             <input
               type="text"
               placeholder="Search for places..."
-              className='text-black'
-              style={{ boxSizing: 'border-box', border: '1px solid transparent', width: '240px', height: '32px', padding: '0 12px', borderRadius: '3px', boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)', fontSize: '14px', outline: 'none', textOverflow: 'ellipses' }}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full p-2"
             />
-          </StandaloneSearchBox>
-        </div>
-        <GoogleMap
-          onLoad={onLoad}
-          mapContainerStyle={mapContainerStyle}
-          center={center}
-          zoom={8}
-          options={options}
-        >
-          {/* Additional components or overlays can be added here */}
-        </GoogleMap>
+            <button type="submit" className="w-full p-2 bg-blue-500 text-white mt-2">
+              Search
+            </button>
+          </form>
+          <div>
+            <h2 className="font-bold">Location Details</h2>
+            {location && (
+              <p>Name: {defaultPlace.name}<br />Address: {defaultPlace.address}</p>
+            )}
+          </div>
+        </aside>
       </div>
-    </LoadScript>
+    </>
   );
 };
 
-export default MapComponent;
+export default GoogleMapsComponent;
