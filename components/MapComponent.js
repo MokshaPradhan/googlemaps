@@ -60,18 +60,18 @@ const GoogleMapsComponent = ({ defaultPlace }) => {
           }
         }}
       />
-      <div className="flex text-black">
+      <div className="flex text-black ">
         <div ref={mapElementRef} className="w-full h-screen" />
-        <aside className="w-80 h-screen overflow-auto p-4 bg-gray-100">
+        <aside className="w-1/3 p-6 h-screen overflow-auto p-4 bg-gray-100">
           <form onSubmit={handleSearch} className="mb-4">
             <input
               type="text"
               placeholder="Search for places..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full p-2"
+              className="w-full p-2 rounded-lg"
             />
-            <button type="submit" className="w-full p-2 bg-blue-500 text-white mt-2">
+            <button type="submit" className="w-full p-2 bg-blue-500 text-white mt-2 rounded-lg">
               Search
             </button>
           </form>
