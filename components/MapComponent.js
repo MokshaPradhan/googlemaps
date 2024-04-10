@@ -53,7 +53,6 @@ const GoogleMapsComponent = ({ defaultPlace }) => {
     setMarker(defaultMarker);
      
   };
-
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery || !window.google || !map) return;
@@ -75,6 +74,18 @@ const GoogleMapsComponent = ({ defaultPlace }) => {
         });
         setMarker(newMarker); // Save the new marker
       }
+  
+      // Create a new circle around the new marker
+      const circle = new google.maps.Circle({
+        strokeColor: 'black', // Light blue border color, using a hexadecimal color value
+        strokeOpacity: 0.8,     // Border opacity
+        strokeWeight: 2,        // Border width
+        fillColor: 'light-blue',   // Fill color, using a hexadecimal color value for light blue
+        fillOpacity: 0.25,      // Fill opacity
+        map: map,
+        center: newLocation,
+        radius: 500,            // Radius in meters
+      });
   
       // Update the info window content to the search query
       const infoWindowContent = searchQuery; // Use the search query as content
