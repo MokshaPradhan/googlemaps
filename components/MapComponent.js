@@ -22,7 +22,7 @@ const GoogleMapsComponent = ({ defaultPlace }) => {
 
     const mapInstance = new window.google.maps.Map(mapElementRef.current, {
       center: geocoderResult.geometry.location,
-      zoom: 19,
+      zoom: 29,
       tilt: 0,
       mapTypeId: 'satellite',
       mapTypeControl: false,
@@ -60,7 +60,7 @@ const GoogleMapsComponent = ({ defaultPlace }) => {
           }
         }}
       />
-      <div className="flex">
+      <div className="flex text-black">
         <div ref={mapElementRef} className="w-full h-screen" />
         <aside className="w-80 h-screen overflow-auto p-4 bg-gray-100">
           <form onSubmit={handleSearch} className="mb-4">
