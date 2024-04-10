@@ -133,9 +133,20 @@ const GoogleMapsComponent = ({ defaultPlace }) => {
       map: mapInstance,
       title: defaultPlace.name,
     });
-    setMarker(defaultMarker); // Save the marker
+    const circle = new google.maps.Circle({
+      strokeColor: 'light-blue', // Border color
+      strokeWeight: 2,     // Border width
+      fillColor: 'blue',   // Fill color
+      fillOpacity: 0.2,    // Fill opacity
+      map: mapInstance,
+      center: geocoderResult.geometry.location,
+      radius: 500         // Radius in meters
+    });
+    setMarker(defaultMarker);
+     
   };
 
+ 
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery || !window.google || !map) return;
